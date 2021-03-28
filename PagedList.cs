@@ -1,15 +1,16 @@
 using System;
+using System.Collections.Generic;
 
 public class PagedList
 {
     public Guid Id { get; set; }
-    public int Pages {get;set;}
-    public int CasesParPage{get;set;}
+    public int Size { get; set; }
+    public int Head { get; set; }
+    public int Tail { get; set; }
+    public List<Page> Pages = new List<Page>(); // Temporaire
 
-    public PagedList(int pages, int casesParPage)
+    public PagedList()
     {
         Id = Guid.NewGuid();
-        Pages = pages;
-        CasesParPage = casesParPage;
     }
 }
