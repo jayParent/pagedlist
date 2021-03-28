@@ -1,0 +1,13 @@
+C:\Users\jerom\code\pagedlist\bin\Debug\netcoreapp3.1\pagedlist.exe
+C:\Users\jerom\code\pagedlist\bin\Debug\netcoreapp3.1\pagedlist.deps.json
+C:\Users\jerom\code\pagedlist\bin\Debug\netcoreapp3.1\pagedlist.runtimeconfig.json
+C:\Users\jerom\code\pagedlist\bin\Debug\netcoreapp3.1\pagedlist.runtimeconfig.dev.json
+C:\Users\jerom\code\pagedlist\bin\Debug\netcoreapp3.1\pagedlist.dll
+C:\Users\jerom\code\pagedlist\bin\Debug\netcoreapp3.1\pagedlist.pdb
+C:\Users\jerom\code\pagedlist\obj\Debug\netcoreapp3.1\pagedlist.csprojAssemblyReference.cache
+C:\Users\jerom\code\pagedlist\obj\Debug\netcoreapp3.1\pagedlist.AssemblyInfoInputs.cache
+C:\Users\jerom\code\pagedlist\obj\Debug\netcoreapp3.1\pagedlist.AssemblyInfo.cs
+C:\Users\jerom\code\pagedlist\obj\Debug\netcoreapp3.1\pagedlist.csproj.CoreCompileInputs.cache
+C:\Users\jerom\code\pagedlist\obj\Debug\netcoreapp3.1\pagedlist.dll
+C:\Users\jerom\code\pagedlist\obj\Debug\netcoreapp3.1\pagedlist.pdb
+C:\Users\jerom\code\pagedlist\obj\Debug\netcoreapp3.1\pagedlist.genruntimeconfig.cache
