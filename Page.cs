@@ -1,11 +1,12 @@
 public class Page
 {
     public bool[] Bitmap { get; set; }
-    public int Size = 8;
+    public int Size { get; set; }
     public Item[] Items { get; set; }
 
-    public Page()
+    public Page(int size)
     {
+        Size = size;
         Items = new Item[Size];
         Bitmap = InitializeBitmap();
     }

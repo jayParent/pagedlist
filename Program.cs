@@ -1,6 +1,5 @@
-﻿using System;
-
-// Jerome Parent
+﻿// Jerome Parent
+using System;
 
 namespace pagedlist
 {
@@ -9,23 +8,18 @@ namespace pagedlist
         static void Main(string[] args)
         {
             PagedList pagedList = new PagedList();
+            FillWithRandom(pagedList, 100);
 
-            Item item1 = new Item(29);
-            for (var i = 0; i < 100; i++)
+            pagedList.PrintInfo();
+        }
+
+        private static void FillWithRandom(PagedList pagedList, int qty)
+        {
+            Random random = new Random();
+            for (int i = 0; i < qty; i++)
             {
-                pagedList.Push(item1);
-            }
-
-            for (int i = 0; i < pagedList.Pages.Count; i++)
-            {
-                for (int j = 0; j < pagedList.Pages[i].Items.Length; j++)
-                {
-                    if (pagedList.Pages[i].Bitmap[j] == true)
-                    {
-                        Console.WriteLine($"{pagedList.Pages[i].Items[j].Value} - Page: {i}");
-                    }
-                }
-
+                Item item = new Item(random.Next());
+                pagedList.Push(item);
             }
         }
     }
