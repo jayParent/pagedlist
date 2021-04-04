@@ -1,6 +1,40 @@
-using System.Collections.Generic;
-
 public class Page
 {
-    public List<Item> Items = new List<Item>(); // Temporaire
+    public bool[] Bitmap { get; set; }
+    public int Size = 8;
+    public Item[] Items { get; set; }
+
+    public Page()
+    {
+        Items = new Item[Size];
+        Bitmap = InitializeBitmap();
+    }
+    public bool Add(Item item)
+    {
+        bool added = false;
+
+        for (int i = 0; i < Bitmap.Length; i++)
+        {
+            if (Bitmap[i] == false) // Bitmap indique qu'il n'y a pas d'item a cet endroit dans la page
+            {
+                Items[i] = item;
+                Bitmap[i] = true;
+                added = true;
+                break;
+            }
+        }
+
+        return added;
+    }
+    private bool[] InitializeBitmap()
+    {
+        bool[] bitmap = new bool[Size];
+
+        for (int i = 0; i < bitmap.Length; i++)
+        {
+            bitmap[i] = false;
+        }
+
+        return bitmap;
+    }
 }
