@@ -10,7 +10,8 @@ namespace pagedlist
             PagedList pagedList = new PagedList();
             FillWithRandom(pagedList, 100);
 
-            pagedList.PrintInfo();
+            int[] position = pagedList.Find(new Item(69));
+            // pagedList.PrintInfo();
         }
 
         private static void FillWithRandom(PagedList pagedList, int qty)
@@ -21,6 +22,9 @@ namespace pagedlist
                 Item item = new Item(random.Next());
                 pagedList.Push(item);
             }
+
+            Item item2 = new Item(69);
+            pagedList.Push(item2);
         }
     }
 }

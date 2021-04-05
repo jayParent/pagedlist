@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public class PagedList
 {
@@ -42,6 +43,7 @@ public class PagedList
 
         else // Page est pleine
         {
+            Tail++;
             Pages.Add(new Page(CasesParPage));
             PageCount++;
             Offset = PageCount - 1;
@@ -49,9 +51,27 @@ public class PagedList
             Count++;
         }
     }
-    public int Find(Item item)
+    public int[] Find(Item searchedItem)
     {
-        throw new NotImplementedException();
+        int[] position = new int[2];
+        for (int i = 0; i < PageCount; i++)
+        {
+            for (int j = 0; j < Pages[i].Items.Length; j++)
+            {   
+                if (Pages[i].Bitmap[j] == false)
+                    break;
+                
+                if (searchedItem.Value == Pages[i].Items[j].Value)
+                {        
+                    position[0] = i;
+                    position[1] = j;
+                }
+            }
+        }
+
+        Console.WriteLine($"{position[0]},{position[1]}");
+        
+        return position;
     }
     public void Delete(int position)
     {

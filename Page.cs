@@ -8,7 +8,7 @@ public class Page
     {
         Size = size;
         Items = new Item[Size];
-        Bitmap = InitializeBitmap();
+        Bitmap = InitializeBitmap(); 
     }
     public bool Add(Item item)
     {
