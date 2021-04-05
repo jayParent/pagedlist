@@ -51,27 +51,27 @@ public class PagedList
             Count++;
         }
     }
-    public int[] Find(Item searchedItem)
+    public List<Dictionary<int, int[]>> Find(Item searchedItem)
     {
-        int[] position = new int[2];
+        List<Dictionary<int, int[]>> matches = new List<Dictionary<int, int[]>>();
+
         for (int i = 0; i < PageCount; i++)
         {
             for (int j = 0; j < Pages[i].Items.Length; j++)
-            {   
+            {
                 if (Pages[i].Bitmap[j] == false)
                     break;
-                
+
                 if (searchedItem.Value == Pages[i].Items[j].Value)
-                {        
-                    position[0] = i;
-                    position[1] = j;
+                {
+                    int[] position = new int[2] { i, j };
+                    Dictionary<int, int[]> match = new Dictionary<int, int[]> { { searchedItem.Value, position } };
+                    matches.Add(match);
                 }
             }
         }
 
-        Console.WriteLine($"{position[0]},{position[1]}");
-        
-        return position;
+        return matches;
     }
     public void Delete(int position)
     {
