@@ -1,6 +1,5 @@
 ﻿// Jerome Parent
 using System;
-using System.Collections.Generic;
 
 namespace pagedlist
 {
@@ -9,18 +8,20 @@ namespace pagedlist
         static void Main(string[] args)
         {
             PagedList pagedList = new PagedList();
-            FillWithRandom(pagedList, 100);
+            FillWithRandom(pagedList, 20);
+            Item item2 = new Item(69);
+            pagedList.Push(item2);
+            pagedList.Push(item2);
+            
+            // pagedList.PrintInfo();
 
-            var matches = pagedList.Find(new Item(69));
+            pagedList.Delete(item2);
 
-            foreach (var dict in matches)
-            {
-                foreach (var kvp in dict)
-                {
-                    Console.WriteLine($"{kvp.Key}: {kvp.Value[0]},{kvp.Value[1]}");
-                    
-                }
-            }
+            var matches = pagedList.Find(item2);
+            // foreach (var match in matches)
+            // {
+            //     System.Console.WriteLine(match);
+            // }
 
 
             // pagedList.PrintInfo();
@@ -33,8 +34,6 @@ namespace pagedlist
             {
                 Item item = new Item(random.Next());
                 pagedList.Push(item);
-                Item item2 = new Item(69);
-                pagedList.Push(item2);
             }
         }
     }

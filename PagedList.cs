@@ -11,6 +11,7 @@ public class PagedList
     public int CasesParPage { get; set; }
     public int Count { get; set; }
     public int PageCount { get; set; }
+    private int ItemPosition { get; set; }
 
     public PagedList()
     {
@@ -19,7 +20,6 @@ public class PagedList
         PageCount = 0;
         CasesParPage = 8;
     }
-
     public PagedList(int casesParPage)
     {
         Head = 0;
@@ -30,30 +30,39 @@ public class PagedList
     public void Push(Item item)
     {
         bool added = false;
+
         if (PageCount == 0)
         {
             Pages.Add(new Page(CasesParPage));
             PageCount++;
         }
 
+        // item.Position = ItemPosition;
+        // item.PageNumber = Tail;
+
         added = Pages[Head + Offset].Add(item);
-
-        if (added)
+        if (added){
+            ItemPosition++;
             Count++;
-
+        }
+            
         else // Page est pleine
         {
-            Tail++;
             Pages.Add(new Page(CasesParPage));
+            Tail++;
             PageCount++;
             Offset = PageCount - 1;
+
+            // item.PageNumber = Tail;
             added = Pages[Head + Offset].Add(item);
+            ItemPosition++;
             Count++;
         }
     }
-    public List<Dictionary<int, int[]>> Find(Item searchedItem)
+    public List<int> Find(Item searchedItem)
     {
-        List<Dictionary<int, int[]>> matches = new List<Dictionary<int, int[]>>();
+        List<int> matches = new List<int>();
+        string output = "";
 
         for (int i = 0; i < PageCount; i++)
         {
@@ -64,18 +73,35 @@ public class PagedList
 
                 if (searchedItem.Value == Pages[i].Items[j].Value)
                 {
-                    int[] position = new int[2] { i, j };
-                    Dictionary<int, int[]> match = new Dictionary<int, int[]> { { searchedItem.Value, position } };
-                    matches.Add(match);
+                    int position = (i * CasesParPage) + j;
+                    matches.Add(position);
                 }
             }
         }
 
+        if (matches.Count == 0)
+            output = "Aucun résultat";
+        else
+            output = "Found at position: " + String.Join(",", matches);
+
+        Console.WriteLine(output);
         return matches;
     }
-    public void Delete(int position)
+    public void Delete(Item searchedItem)
     {
-        throw new NotImplementedException();
+        List<int> positions = Find(searchedItem);
+        int position, page;
+
+        for (int i = 0; i < positions.Count; i++)
+        {
+            position = positions[i];
+            page = position / CasesParPage;
+
+            Pages[page].Items[position - (page * CasesParPage)].Value = null;
+            Pages[page].Bitmap[position - (page * CasesParPage)] = false;
+        }
+
+        Console.WriteLine($"Deleted: {positions.Count} items");
     }
     public void Compact()
     {
@@ -89,7 +115,7 @@ public class PagedList
             {
                 if (this.Pages[i].Bitmap[j] == true)
                 {
-                    Console.WriteLine($"{this.Pages[i].Items[j].Value} - Page: {i}");
+                    Console.WriteLine($"{this.Pages[i].Items[j].Value} - Page: {i} Position: {(i * CasesParPage) + j}");
                 }
             }
 
