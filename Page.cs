@@ -10,22 +10,15 @@ public class Page
         Items = new Item[Size];
         Bitmap = InitializeBitmap(); 
     }
-    public bool Add(Item item)
+    public bool Add(Item item, int index)
     {
-        bool added = false;
+        if(index == Size)
+            return false;
+        
+        Items[index] = item;
+        Bitmap[index] = true;
 
-        for (int i = 0; i < Bitmap.Length; i++)
-        {
-            if (Bitmap[i] == false) // Bitmap indique qu'il n'y a pas d'item a cet endroit dans la page
-            {
-                Items[i] = item;
-                Bitmap[i] = true;
-                added = true;
-                break;
-            }
-        }
-
-        return added;
+        return true;
     }
     private bool[] InitializeBitmap()
     {

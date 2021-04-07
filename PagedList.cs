@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 public class PagedList
 {
     public int Head { get; set; }
     public int Tail { get; set; }
+    public int CurrentPageIndex { get; set; }
     public int Offset { get; set; }
     public List<Page> Pages = new List<Page>();
     public int CasesParPage { get; set; }
     public int Count { get; set; }
     public int PageCount { get; set; }
-    private int ItemPosition { get; set; }
 
     public PagedList()
     {
@@ -19,6 +18,9 @@ public class PagedList
         Tail = 0;
         PageCount = 0;
         CasesParPage = 8;
+
+        Pages.Add(new Page(CasesParPage));
+        PageCount++;
     }
     public PagedList(int casesParPage)
     {
@@ -26,37 +28,27 @@ public class PagedList
         Tail = 0;
         PageCount = 0;
         CasesParPage = casesParPage;
+
+        Pages.Add(new Page(CasesParPage));
+        PageCount++;
     }
     public void Push(Item item)
     {
         bool added = false;
 
-        if (PageCount == 0)
+        added = Pages[Head + Offset].Add(item, CurrentPageIndex);
+        if (added)
         {
-            Pages.Add(new Page(CasesParPage));
-            PageCount++;
+            Count++;
+            CurrentPageIndex++;
         }
 
-        // item.Position = ItemPosition;
-        // item.PageNumber = Tail;
-
-        added = Pages[Head + Offset].Add(item);
-        if (added){
-            ItemPosition++;
-            Count++;
-        }
-            
-        else // Page est pleine
+        else
         {
-            Pages.Add(new Page(CasesParPage));
-            Tail++;
-            PageCount++;
-            Offset = PageCount - 1;
-
-            // item.PageNumber = Tail;
-            added = Pages[Head + Offset].Add(item);
-            ItemPosition++;
+            CreatePage();
+            Pages[Head + Offset].Add(item, CurrentPageIndex);
             Count++;
+            CurrentPageIndex++;
         }
     }
     public List<int> Find(Item searchedItem)
@@ -87,6 +79,14 @@ public class PagedList
         Console.WriteLine(output);
         return matches;
     }
+    public Item Get(int position)
+    {
+        int page = position / CasesParPage;
+
+        Item reference = Pages[page].Items[position - (page * CasesParPage)];
+
+        return reference;
+    }
     public void Delete(Item searchedItem)
     {
         List<int> positions = Find(searchedItem);
@@ -101,11 +101,30 @@ public class PagedList
             Pages[page].Bitmap[position - (page * CasesParPage)] = false;
         }
 
+        Count -= positions.Count;
         Console.WriteLine($"Deleted: {positions.Count} items");
+    }
+
+    public void Delete(int position)
+    {
+        //! OUPS ca delete tous les instances de la valeur
+        int page = position / CasesParPage;
+
+        Pages[page].Items[position - (page * CasesParPage)].Value = null;
+        Pages[page].Bitmap[position - (page * CasesParPage)] = false;
+
+        Count -= 1;
+        Console.WriteLine($"Deleted: 1 items");
     }
     public void Compact()
     {
-        throw new NotImplementedException();
+        Queue<int> open = new Queue<int>();
+        Stack<KeyValuePair<int, Item>> filled = new Stack<KeyValuePair<int, Item>>();
+        List<Page> emptyPages = new List<Page>();
+        
+        GetItemsToShift(open, filled, emptyPages);
+        ShiftItems(open, filled);
+        DeleteEmptyPages(emptyPages);
     }
     public void PrintInfo()
     {
@@ -122,4 +141,65 @@ public class PagedList
         }
         Console.WriteLine($"PagedList -- Count: {this.Count} Pages: {this.PageCount}");
     }
+    private void CreatePage()
+    {
+        Pages.Add(new Page(CasesParPage));
+        CurrentPageIndex = 0;
+        PageCount++;
+        Tail++;
+        Offset = PageCount - 1;
+    }
+    private void GetItemsToShift(Queue<int> open, Stack<KeyValuePair<int, Item>> filled, List<Page> emptyPages)
+    {
+        bool emptyPage = true;
+
+        for (int i = 0; i < PageCount; i++)
+        {
+            for (int j = 0; j < Pages[i].Bitmap.Length; j++)
+            {
+                if (Pages[i].Bitmap[j] == false)
+                {
+                    int position = (i * CasesParPage) + j;
+                    open.Enqueue(position);
+                }
+                else
+                {
+                    emptyPage = false;
+                    int position = (i * CasesParPage) + j;
+                    Item item = Pages[i].Items[j];
+                    KeyValuePair<int, Item> itemAndPosition = new KeyValuePair<int, Item>(position, item);
+                    filled.Push(itemAndPosition);
+                }
+            }
+
+            if (emptyPage)
+                emptyPages.Add(Pages[i]);
+        }
+    }
+    private void ShiftItems(Queue<int> open, Stack<KeyValuePair<int, Item>> filled)
+    {
+        while (open.Count > 0 && filled.Count > 0)
+        {
+            int openPosition = open.Dequeue();
+            int openPage = openPosition / CasesParPage;
+
+            KeyValuePair<int, Item> item = filled.Pop();
+            int movedItemPosition = item.Key;
+            int movedItemPage = movedItemPosition / CasesParPage;
+
+            Pages[openPage].Items[openPosition - (openPage * CasesParPage)] = item.Value;
+            Pages[openPage].Bitmap[openPosition - (openPage * CasesParPage)] = true;
+
+            Pages[movedItemPage].Items[movedItemPosition - (movedItemPage * CasesParPage)] = null;
+            Pages[movedItemPage].Bitmap[movedItemPosition - (movedItemPage * CasesParPage)] = false;
+        }
+    }
+    private void DeleteEmptyPages(List<Page> emptyPages)
+    {
+        foreach (Page page in emptyPages)
+        {
+            Pages.Remove(page);
+        }
+    }
+
 }
