@@ -13,7 +13,15 @@ namespace pagedlist
 
             pagedList.Push(item2);
             // System.Console.WriteLine(item2.Value);          
-            DeleteRandomItems(pagedList, 20);
+            // DeleteRandomItems(pagedList, 5);
+            pagedList.Delete(1);
+            pagedList.Delete(2);
+            pagedList.Delete(3);
+            pagedList.Delete(5);
+            pagedList.Delete(7);
+            pagedList.Delete(11);
+            pagedList.Delete(14);
+            pagedList.Delete(17);
             pagedList.Compact();
             pagedList.PrintInfo();
 

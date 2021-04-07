@@ -151,10 +151,10 @@ public class PagedList
     }
     private void GetItemsToShift(Queue<int> open, Stack<KeyValuePair<int, Item>> filled, List<Page> emptyPages)
     {
-        bool emptyPage = true;
-
         for (int i = 0; i < PageCount; i++)
         {
+            bool emptyPage = true;
+            
             for (int j = 0; j < Pages[i].Bitmap.Length; j++)
             {
                 if (Pages[i].Bitmap[j] == false)
