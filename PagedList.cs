@@ -43,7 +43,6 @@ public class PagedList<T>
     }
     public List<int> Find(T searchedItem)
     {
-        //! store le numero de page de l'item pour trouver plus vite, style index??
         // checker la valeur total de la bitmap, si pas 8 * size, ya de la place
         List<int> matches = new List<int>();
         string output = "";
@@ -111,41 +110,15 @@ public class PagedList<T>
     {
         Queue<int> open = new Queue<int>();
         Stack<KeyValuePair<int, T>> filled = new Stack<KeyValuePair<int, T>>();
-        List<Page<T>> emptyPages = new List<Page<T>>();
 
-        GetItemsToShift(open, filled, emptyPages);
+        GetItemsToShift(open, filled);
         ShiftItems(open, filled);
-        DeleteEmptyPages(emptyPages);
+        DeleteEmptyPages();
     }
-    public void PrintInfo()
-    {
-        for (int i = 0; i < this.Pages.Count; i++)
-        {
-            for (int j = 0; j < this.Pages[i].Items.Length; j++)
-            {
-                if (this.Pages[i].Bitmap[j] == true)
-                {
-                    Console.WriteLine($"{this.Pages[i].Items[j]} - Page: {i} Position: {(i * CasesParPage) + j}");
-                }
-            }
-
-        }
-        Console.WriteLine($"PagedList -- Count: {this.Count} Pages: {this.PageCount}");
-    }
-    private void CreatePage()
-    {
-        Pages.Add(new Page<T>(CasesParPage));
-        CurrentPageIndex = 0;
-        PageCount++;
-        Tail++;
-        Offset = PageCount - 1;
-    }
-    private void GetItemsToShift(Queue<int> open, Stack<KeyValuePair<int, T>> filled, List<Page<T>> emptyPages)
+    private void GetItemsToShift(Queue<int> open, Stack<KeyValuePair<int, T>> filled)
     {
         for (int i = 0; i < PageCount; i++)
         {
-            bool emptyPage = true;
-
             for (int j = 0; j < Pages[i].Bitmap.Length; j++)
             {
                 if (Pages[i].Bitmap[j] == false)
@@ -155,16 +128,12 @@ public class PagedList<T>
                 }
                 else
                 {
-                    emptyPage = false;
                     int position = (i * CasesParPage) + j;
                     T item = Pages[i].Items[j];
                     KeyValuePair<int, T> itemAndPosition = new KeyValuePair<int, T>(position, item);
                     filled.Push(itemAndPosition);
                 }
             }
-
-            if (emptyPage)
-                emptyPages.Add(Pages[i]);
         }
     }
     private void ShiftItems(Queue<int> open, Stack<KeyValuePair<int, T>> filled)
@@ -183,13 +152,73 @@ public class PagedList<T>
 
             Pages[movedItemPage].Items[movedItemPosition - (movedItemPage * CasesParPage)] = default(T);
             Pages[movedItemPage].Bitmap[movedItemPosition - (movedItemPage * CasesParPage)] = false;
+
+            this.PrintLayout();
         }
     }
-    private void DeleteEmptyPages(List<Page<T>> emptyPages)
+    private void DeleteEmptyPages()
     {
-        foreach (Page<T> page in emptyPages)
+        List<Page<T>> emptyPages = new List<Page<T>>();
+        foreach (Page<T> page in Pages)
         {
-            Pages.Remove(page);
+            bool emptyPage = true;
+            foreach (bool bit in page.Bitmap)
+            {
+                if(bit == true){
+                    emptyPage = false;
+                    break;
+                }
+            }
+
+            if(emptyPage)
+                emptyPages.Add(page);
         }
+
+        foreach (Page<T> emptyPage in emptyPages)
+        {
+            Pages.Remove(emptyPage);
+        }
+
+        if(emptyPages.Count > 0)
+            this.PrintLayout();
+    }
+    private void CreatePage()
+    {
+        Pages.Add(new Page<T>(CasesParPage));
+        CurrentPageIndex = 0;
+        PageCount++;
+        Tail++;
+        Offset = PageCount - 1;
+    }
+    public void PrintInfo()
+    {
+        for (int i = 0; i < Pages.Count; i++)
+        {
+            for (int j = 0; j < Pages[i].Items.Length; j++)
+            {
+                if (Pages[i].Bitmap[j] == true)
+                {
+                    Console.WriteLine($"{Pages[i].Items[j]} - Page: {i} Position: {(i * CasesParPage) + j}");
+                }
+            }
+
+        }
+        Console.WriteLine($"PagedList -- Count: {Count} Pages: {PageCount}");
+    }
+    public void PrintLayout()
+    {
+        for (int i = 0; i < Pages.Count; i++)
+        {
+            string output = "";
+            output += "|";
+
+            for (int j = 0; j < Pages[i].Items.Length; j++)
+            {
+                output += Pages[i].Bitmap[j] == true ? "*" : "-";
+            }
+            output += "|";
+            Console.Write(output);
+        }
+        Console.Write("\n");
     }
 }
