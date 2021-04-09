@@ -1,38 +1,28 @@
 using System;
 using System.Collections.Generic;
 
-public class PagedList
+public class PagedList<T>
 {
     public int Head { get; set; }
     public int Tail { get; set; }
     public int CurrentPageIndex { get; set; }
     public int Offset { get; set; }
-    public List<Page> Pages = new List<Page>();
+    public List<Page<T>> Pages = new List<Page<T>>();
     public int CasesParPage { get; set; }
     public int Count { get; set; }
     public int PageCount { get; set; }
 
-    public PagedList()
-    {
-        Head = 0;
-        Tail = 0;
-        PageCount = 0;
-        CasesParPage = 8;
-
-        Pages.Add(new Page(CasesParPage));
-        PageCount++;
-    }
-    public PagedList(int casesParPage)
+    public PagedList(int casesParPage = 8)
     {
         Head = 0;
         Tail = 0;
         PageCount = 0;
         CasesParPage = casesParPage;
 
-        Pages.Add(new Page(CasesParPage));
+        Pages.Add(new Page<T>(CasesParPage));
         PageCount++;
     }
-    public void Push(Item item)
+    public void Push(T item)
     {
         bool added = false;
 
@@ -51,8 +41,10 @@ public class PagedList
             CurrentPageIndex++;
         }
     }
-    public List<int> Find(Item searchedItem)
+    public List<int> Find(T searchedItem)
     {
+        //! store le numero de page de l'item pour trouver plus vite, style index??
+        // checker la valeur total de la bitmap, si pas 8 * size, ya de la place
         List<int> matches = new List<int>();
         string output = "";
 
@@ -63,7 +55,7 @@ public class PagedList
                 if (Pages[i].Bitmap[j] == false)
                     break;
 
-                if (searchedItem.Value == Pages[i].Items[j].Value)
+                if (searchedItem.Equals(Pages[i].Items[j]))
                 {
                     int position = (i * CasesParPage) + j;
                     matches.Add(position);
@@ -79,15 +71,15 @@ public class PagedList
         Console.WriteLine(output);
         return matches;
     }
-    public Item Get(int position)
+    public T Get(int position)
     {
         int page = position / CasesParPage;
 
-        Item reference = Pages[page].Items[position - (page * CasesParPage)];
+        T reference = Pages[page].Items[position - (page * CasesParPage)];
 
         return reference;
     }
-    public void Delete(Item searchedItem)
+    public void Delete(T searchedItem)
     {
         List<int> positions = Find(searchedItem);
         int position, page;
@@ -97,7 +89,7 @@ public class PagedList
             position = positions[i];
             page = position / CasesParPage;
 
-            Pages[page].Items[position - (page * CasesParPage)].Value = null;
+            Pages[page].Items[position - (page * CasesParPage)] = default(T);
             Pages[page].Bitmap[position - (page * CasesParPage)] = false;
         }
 
@@ -107,10 +99,9 @@ public class PagedList
 
     public void Delete(int position)
     {
-        //! OUPS ca delete tous les instances de la valeur
         int page = position / CasesParPage;
 
-        Pages[page].Items[position - (page * CasesParPage)].Value = null;
+        Pages[page].Items[position - (page * CasesParPage)] = default(T);
         Pages[page].Bitmap[position - (page * CasesParPage)] = false;
 
         Count -= 1;
@@ -119,9 +110,9 @@ public class PagedList
     public void Compact()
     {
         Queue<int> open = new Queue<int>();
-        Stack<KeyValuePair<int, Item>> filled = new Stack<KeyValuePair<int, Item>>();
-        List<Page> emptyPages = new List<Page>();
-        
+        Stack<KeyValuePair<int, T>> filled = new Stack<KeyValuePair<int, T>>();
+        List<Page<T>> emptyPages = new List<Page<T>>();
+
         GetItemsToShift(open, filled, emptyPages);
         ShiftItems(open, filled);
         DeleteEmptyPages(emptyPages);
@@ -134,7 +125,7 @@ public class PagedList
             {
                 if (this.Pages[i].Bitmap[j] == true)
                 {
-                    Console.WriteLine($"{this.Pages[i].Items[j].Value} - Page: {i} Position: {(i * CasesParPage) + j}");
+                    Console.WriteLine($"{this.Pages[i].Items[j]} - Page: {i} Position: {(i * CasesParPage) + j}");
                 }
             }
 
@@ -143,18 +134,18 @@ public class PagedList
     }
     private void CreatePage()
     {
-        Pages.Add(new Page(CasesParPage));
+        Pages.Add(new Page<T>(CasesParPage));
         CurrentPageIndex = 0;
         PageCount++;
         Tail++;
         Offset = PageCount - 1;
     }
-    private void GetItemsToShift(Queue<int> open, Stack<KeyValuePair<int, Item>> filled, List<Page> emptyPages)
+    private void GetItemsToShift(Queue<int> open, Stack<KeyValuePair<int, T>> filled, List<Page<T>> emptyPages)
     {
         for (int i = 0; i < PageCount; i++)
         {
             bool emptyPage = true;
-            
+
             for (int j = 0; j < Pages[i].Bitmap.Length; j++)
             {
                 if (Pages[i].Bitmap[j] == false)
@@ -166,8 +157,8 @@ public class PagedList
                 {
                     emptyPage = false;
                     int position = (i * CasesParPage) + j;
-                    Item item = Pages[i].Items[j];
-                    KeyValuePair<int, Item> itemAndPosition = new KeyValuePair<int, Item>(position, item);
+                    T item = Pages[i].Items[j];
+                    KeyValuePair<int, T> itemAndPosition = new KeyValuePair<int, T>(position, item);
                     filled.Push(itemAndPosition);
                 }
             }
@@ -176,30 +167,29 @@ public class PagedList
                 emptyPages.Add(Pages[i]);
         }
     }
-    private void ShiftItems(Queue<int> open, Stack<KeyValuePair<int, Item>> filled)
+    private void ShiftItems(Queue<int> open, Stack<KeyValuePair<int, T>> filled)
     {
         while (open.Count > 0 && filled.Count > 0)
         {
             int openPosition = open.Dequeue();
             int openPage = openPosition / CasesParPage;
 
-            KeyValuePair<int, Item> item = filled.Pop();
+            KeyValuePair<int, T> item = filled.Pop();
             int movedItemPosition = item.Key;
             int movedItemPage = movedItemPosition / CasesParPage;
 
             Pages[openPage].Items[openPosition - (openPage * CasesParPage)] = item.Value;
             Pages[openPage].Bitmap[openPosition - (openPage * CasesParPage)] = true;
 
-            Pages[movedItemPage].Items[movedItemPosition - (movedItemPage * CasesParPage)] = null;
+            Pages[movedItemPage].Items[movedItemPosition - (movedItemPage * CasesParPage)] = default(T);
             Pages[movedItemPage].Bitmap[movedItemPosition - (movedItemPage * CasesParPage)] = false;
         }
     }
-    private void DeleteEmptyPages(List<Page> emptyPages)
+    private void DeleteEmptyPages(List<Page<T>> emptyPages)
     {
-        foreach (Page page in emptyPages)
+        foreach (Page<T> page in emptyPages)
         {
             Pages.Remove(page);
         }
     }
-
 }

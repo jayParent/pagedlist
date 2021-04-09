@@ -7,54 +7,40 @@ namespace pagedlist
     {
         static void Main(string[] args)
         {
-            PagedList pagedList = new PagedList();
-            FillWithRandom(pagedList, 30);
-            Item item2 = new Item(69);
+            PagedList<int> pagedList = new PagedList<int>();
+            FillWithRandom(pagedList, 50);
 
-            pagedList.Push(item2);
+            // pagedList.Push(item2);
             // System.Console.WriteLine(item2.Value);          
             // DeleteRandomItems(pagedList, 5);
-            pagedList.Delete(1);
-            pagedList.Delete(2);
-            pagedList.Delete(3);
-            pagedList.Delete(5);
-            pagedList.Delete(7);
-            pagedList.Delete(11);
-            pagedList.Delete(14);
-            pagedList.Delete(17);
-            pagedList.Compact();
+            // pagedList.Delete(1);
+            // pagedList.Delete(2);
+            // pagedList.Delete(3);
+            // pagedList.Delete(5);
+            // pagedList.Delete(7);
+            // pagedList.Delete(11);
+            // pagedList.Delete(14);
+            // pagedList.Delete(17);
+            // pagedList.Compact();
             pagedList.PrintInfo();
-
-            // pagedList.Delete(item2);
-
-            // var matches = pagedList.Find(item2);
-            // Item r = pagedList.Get(matches[0]);
-            // r.Value = 11;
-            
-            // Console.WriteLine(item2.Value);
-            
-
-
-            // var matches = pagedList.Find(item2);
-
         }
 
-        private static void FillWithRandom(PagedList pagedList, int qty)
+        private static void FillWithRandom(PagedList<int> pagedList, int qty)
         {
             Random random = new Random();
             for (int i = 0; i < qty; i++)
             {
-                Item item = new Item(random.Next());
-                pagedList.Push(item);
+                int n = random.Next();
+                pagedList.Push(n);
             }
         }
-        private static void DeleteRandomItems(PagedList pagedList, int qty){
+        private static void DeleteRandomItems(PagedList<int> pagedList, int qty)
+        {
             Random random = new Random();
 
             for (int i = 0; i < qty; i++)
             {
-                // int index = random.Next(0, pagedList.Count);
-                pagedList.Delete(i);    
+                pagedList.Delete(i);
             }
         }
     }

@@ -1,16 +1,16 @@
-public class Page
+public class Page<T>
 {
     public bool[] Bitmap { get; set; }
     public int Size { get; set; }
-    public Item[] Items { get; set; }
+    public T[] Items { get; set; }
 
     public Page(int size)
     {
         Size = size;
-        Items = new Item[Size];
+        Items = new T[Size];
         Bitmap = InitializeBitmap(); 
     }
-    public bool Add(Item item, int index)
+    public bool Add(T item, int index)
     {
         if(index == Size)
             return false;
