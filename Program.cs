@@ -12,7 +12,7 @@ namespace pagedlist
 
         private static void Test1()
         {
-            PagedList<int> pagedList = new PagedList<int>();
+            PagedList<int> pagedList = new PagedList<int>(); // Cases par page: 8 par default, 1 int argument pour choisir le nombre de cases par page
             FillWithRandom(pagedList, 48);
             Console.WriteLine($"Pages: {pagedList.PageCount}\nCases par page: {pagedList.CasesParPage}\nItems: {pagedList.Count}\n");
 
@@ -44,7 +44,12 @@ namespace pagedlist
             Console.WriteLine("Appuyez sur ENTER pour rechercher cet item...");
             Console.ReadLine();
 
-            pagedList.Find(666);
+            int position = pagedList.Find(666)[0];
+            int item = pagedList.Get(position);
+            
+            Console.WriteLine($"Item: {item}");
+            Console.WriteLine("Appuyez sur ENTER pour quitter...");
+            Console.ReadLine();
         }
         private static void FillWithRandom(PagedList<int> pagedList, int qty)
         {

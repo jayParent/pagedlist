@@ -32,7 +32,6 @@ public class PagedList<T>
             Count++;
             IndexInCurrentPage++;
         }
-
         else
         {
             CreatePage();
