@@ -5,7 +5,7 @@ public class PagedList<T>
 {
     public int Head { get; set; }
     public int Tail { get; set; }
-    public int CurrentPageIndex { get; set; }
+    public int IndexInCurrentPage { get; set; }
     public int Offset { get; set; }
     public List<Page<T>> Pages = new List<Page<T>>();
     public int CasesParPage { get; set; }
@@ -26,24 +26,23 @@ public class PagedList<T>
     {
         bool added = false;
 
-        added = Pages[Head + Offset].Add(item, CurrentPageIndex);
+        added = Pages[Head + Offset].Add(item, IndexInCurrentPage);
         if (added)
         {
             Count++;
-            CurrentPageIndex++;
+            IndexInCurrentPage++;
         }
 
         else
         {
             CreatePage();
-            Pages[Head + Offset].Add(item, CurrentPageIndex);
+            Pages[Head + Offset].Add(item, IndexInCurrentPage);
             Count++;
-            CurrentPageIndex++;
+            IndexInCurrentPage++;
         }
     }
     public List<int> Find(T searchedItem)
     {
-        // checker la valeur total de la bitmap, si pas 8 * size, ya de la place
         List<int> matches = new List<int>();
         string output = "";
 
@@ -65,7 +64,7 @@ public class PagedList<T>
         if (matches.Count == 0)
             output = "Aucun résultat";
         else
-            output = "Found at position: " + String.Join(",", matches);
+            output = "Trouvé à index: " + String.Join(",", matches);
 
         Console.WriteLine(output);
         return matches;
@@ -104,7 +103,7 @@ public class PagedList<T>
         Pages[page].Bitmap[position - (page * CasesParPage)] = false;
 
         Count -= 1;
-        Console.WriteLine($"Deleted: 1 items");
+        this.PrintLayout();
     }
     public void Compact()
     {
@@ -114,6 +113,7 @@ public class PagedList<T>
         GetItemsToShift(open, filled);
         ShiftItems(open, filled);
         DeleteEmptyPages();
+        GetCurrentPageIndex();
     }
     private void GetItemsToShift(Queue<int> open, Stack<KeyValuePair<int, T>> filled)
     {
@@ -138,14 +138,29 @@ public class PagedList<T>
     }
     private void ShiftItems(Queue<int> open, Stack<KeyValuePair<int, T>> filled)
     {
-        while (open.Count > 0 && filled.Count > 0)
+        this.PrintLayout();
+        int iterations = open.Count;
+
+        while (iterations > 0)
         {
             int openPosition = open.Dequeue();
             int openPage = openPosition / CasesParPage;
+            int indexInPage = openPosition - (openPage * CasesParPage);
 
             KeyValuePair<int, T> item = filled.Pop();
             int movedItemPosition = item.Key;
             int movedItemPage = movedItemPosition / CasesParPage;
+
+            try
+            {
+                if (Pages[movedItemPage].Bitmap[(movedItemPosition - (movedItemPage * CasesParPage)) - 1] == false)
+                    iterations--;
+            }
+            catch
+            {
+                if (Pages[movedItemPage - 1].Bitmap[CasesParPage - 1] == false)
+                    iterations--;
+            }
 
             Pages[openPage].Items[openPosition - (openPage * CasesParPage)] = item.Value;
             Pages[openPage].Bitmap[openPosition - (openPage * CasesParPage)] = true;
@@ -153,8 +168,21 @@ public class PagedList<T>
             Pages[movedItemPage].Items[movedItemPosition - (movedItemPage * CasesParPage)] = default(T);
             Pages[movedItemPage].Bitmap[movedItemPosition - (movedItemPage * CasesParPage)] = false;
 
+            iterations--;
             this.PrintLayout();
         }
+    }
+    private void GetCurrentPageIndex()
+    {
+        for (int i = 0; i < CasesParPage; i++)
+        {
+            if (Pages[PageCount - 1].Bitmap[i] == false)
+            {
+                IndexInCurrentPage = i;
+                break;
+            }
+        }
+
     }
     private void DeleteEmptyPages()
     {
@@ -164,28 +192,32 @@ public class PagedList<T>
             bool emptyPage = true;
             foreach (bool bit in page.Bitmap)
             {
-                if(bit == true){
+                if (bit == true)
+                {
                     emptyPage = false;
                     break;
                 }
             }
 
-            if(emptyPage)
+            if (emptyPage)
                 emptyPages.Add(page);
         }
 
         foreach (Page<T> emptyPage in emptyPages)
         {
             Pages.Remove(emptyPage);
+            PageCount--;
         }
 
-        if(emptyPages.Count > 0)
+        Offset = PageCount - 1;
+
+        if (emptyPages.Count > 0)
             this.PrintLayout();
     }
     private void CreatePage()
     {
         Pages.Add(new Page<T>(CasesParPage));
-        CurrentPageIndex = 0;
+        IndexInCurrentPage = 0;
         PageCount++;
         Tail++;
         Offset = PageCount - 1;

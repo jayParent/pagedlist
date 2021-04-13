@@ -7,44 +7,45 @@ namespace pagedlist
     {
         static void Main(string[] args)
         {
-            PagedList<int> pagedList = new PagedList<int>(8);
+            Test1();
+        }
+
+        private static void Test1()
+        {
+            PagedList<int> pagedList = new PagedList<int>();
             FillWithRandom(pagedList, 48);
-            
+            Console.WriteLine($"Pages: {pagedList.PageCount}\nCases par page: {pagedList.CasesParPage}\nItems: {pagedList.Count}\n");
+
+            Console.WriteLine("Appuyez sur ENTER pour supprimer des items...");
+            Console.ReadLine();
+
             pagedList.Delete(13);
             pagedList.Delete(27);
             pagedList.Delete(28);
             pagedList.Delete(11);
             pagedList.Delete(38);
-            pagedList.Delete(39);
             pagedList.Delete(25);
             pagedList.Delete(3);
-            pagedList.Delete(1);
-            // pagedList.Delete(47);
-            // pagedList.Delete(41);
-            // int count = pagedList.Count;
-            // for (int i = 0; i < count; i++)
-            // {
-            //     pagedList.Delete(i);
-            // }
-            // pagedList.Push(39);
-            // pagedList.Find(39);
-            // DeleteRandomItems(pagedList, 26);
+            pagedList.Delete(16);
+            pagedList.Delete(19);
+            pagedList.Delete(5);
+
+            Console.WriteLine("Appuyez sur ENTER pour compacter les items...");
+            Console.ReadLine();
+
             pagedList.Compact();
 
-            // pagedList.Push(item2);
-            // System.Console.WriteLine(item2.Value);          
-            // pagedList.Delete(1);
-            // pagedList.Delete(2);
-            // pagedList.Delete(3);
-            // pagedList.Delete(5);
-            // pagedList.Delete(7);
-            // pagedList.Delete(11);
-            // pagedList.Delete(14);
-            // pagedList.Delete(17);
-            // pagedList.Compact();
-            // pagedList.PrintInfo();
-        }
+            Console.WriteLine("Appuyez sur ENTER pour ajouter un item...");
+            Console.ReadLine();
 
+            pagedList.Push(666);
+            pagedList.PrintLayout();
+
+            Console.WriteLine("Appuyez sur ENTER pour rechercher cet item...");
+            Console.ReadLine();
+
+            pagedList.Find(666);
+        }
         private static void FillWithRandom(PagedList<int> pagedList, int qty)
         {
             Random random = new Random();
@@ -53,6 +54,8 @@ namespace pagedlist
                 int n = random.Next();
                 pagedList.Push(n);
             }
+
+            pagedList.PrintLayout();
         }
         private static void DeleteRandomItems(PagedList<int> pagedList, int qty)
         {
